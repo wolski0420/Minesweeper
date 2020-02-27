@@ -1,12 +1,22 @@
 package GameEngine;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.util.HashSet;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameMap extends Application{
     private Stage window;
@@ -16,6 +26,8 @@ public class GameMap extends Application{
     private MenuBar menu;
     private Pane pane;
     private Field[][] mapOfFields;
+    private int timePassed;
+    private static Timer timer = null;
     public double percentage = 0.1;
     public int numberOfBombs = (int)(this.percentage * this.numberOfFields * this.numberOfFields);
     public int numberOfFoundBombs;
@@ -31,8 +43,23 @@ public class GameMap extends Application{
         this.menu = this.createMenu();
         this.createMap();
 
+        Label time = new Label();
+        time.setMinHeight(40);
+        time.setFont(Font.font("", FontWeight.BOLD,20));
+
+        Timeline clock = new Timeline(new KeyFrame(Duration.ZERO,
+                e -> time.setText("Time passed: " + this.timePassed)),
+                new KeyFrame(Duration.seconds(1)));
+
+        clock.setCycleCount(Animation.INDEFINITE);
+        clock.play();
+
+        HBox layoutForTimer = new HBox();
+        layoutForTimer.setAlignment(Pos.CENTER);
+        layoutForTimer.getChildren().add(time);
+
         VBox layout = new VBox();
-        layout.getChildren().addAll(menu, pane);
+        layout.getChildren().addAll(menu, pane, layoutForTimer);
 
         Scene scene = new Scene(layout);
         window.setTitle("Minesweeper");
@@ -58,12 +85,22 @@ public class GameMap extends Application{
         gameMenu.getItems().addAll(newGame, closeGame);
 
         // difficulty level
-        MenuItem easy = new MenuItem("Easy - 10% bombs");
-        MenuItem medium = new MenuItem("Medium - 15% bombs");
-        MenuItem hard = new MenuItem("Hard - 20% bombs");
+        ToggleGroup levelToggle = new ToggleGroup();
+
+        RadioMenuItem easy = new RadioMenuItem("Easy - 10% bombs");
+        RadioMenuItem medium = new RadioMenuItem("Medium - 15% bombs");
+        RadioMenuItem hard = new RadioMenuItem("Hard - 20% bombs");
+
         easy.setOnAction(e -> this.setLevel(0.1));
         medium.setOnAction(e -> this.setLevel(0.15));
         hard.setOnAction(e -> this.setLevel(0.2));
+
+        easy.setToggleGroup(levelToggle);
+        medium.setToggleGroup(levelToggle);
+        hard.setToggleGroup(levelToggle);
+
+        easy.setSelected(true);
+
         levelMenu.getItems().addAll(easy, medium, hard);
 
         // edit panel with settings
@@ -102,6 +139,19 @@ public class GameMap extends Application{
         this.numericMap = new NumericMap(this.numberOfFields, this.numberOfFields, this.numberOfBombs);
         this.mapOfFields = new Field[this.numberOfFields][this.numberOfFields];
         this.numberOfFoundBombs = 0;
+
+        this.timePassed = 0;
+
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                timePassed++;
+            }
+        };
+
+        if(this.timer != null) this.timer.cancel();
+        this.timer = new Timer();
+        this.timer.schedule(task,1000,1000);
 
         pane.setPrefSize(this.numberOfFields * this.sizeOfButton, this.numberOfFields * this.sizeOfButton);
         pane.getChildren().clear();
@@ -147,7 +197,7 @@ public class GameMap extends Application{
         }
 
         AlertWindow alert = new AlertWindow();
-        alert.display("Victory!", "Yeah, you won this game!");
+        alert.display("Victory!", "Yeah, you won this game in " + this.timePassed + " seconds!");
         this.reload();
     }
 
