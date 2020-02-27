@@ -62,6 +62,10 @@ public class GameMap extends Application{
         layout.getChildren().addAll(menu, pane, layoutForTimer);
 
         Scene scene = new Scene(layout);
+        window.setOnCloseRequest(e -> {
+            window.close();
+            System.exit(0);
+        });
         window.setTitle("Minesweeper");
         window.setScene(scene);
         window.show();
