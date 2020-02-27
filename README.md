@@ -11,4 +11,4 @@ Screenshot from the game (below):
 
 <img alt="ImageName" src="gamescreen.png">
 
-Enjoy!
+Have fun! 
