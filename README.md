@@ -3,7 +3,7 @@ My first game with GUI - Minesweeper. Written in Java and JavaFX GUI. Enjoy!
 
 Here you can 
 <a download="minesweeper.exe" href="minesweeper.exe" title="Minesweeper">
-    <p>Download</p>
+    Download
 </a>
 this file :D 
 
